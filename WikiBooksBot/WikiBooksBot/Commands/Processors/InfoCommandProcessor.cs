@@ -5,6 +5,7 @@ using Botticelli.Framework.Commands.Processors;
 using Botticelli.Framework.Commands.Validators;
 using Botticelli.Framework.SendOptions;
 using Botticelli.Shared.API.Client.Requests;
+using Botticelli.Shared.Constants;
 using Botticelli.Shared.ValueObjects;
 using FluentValidation;
 
@@ -15,13 +16,13 @@ public class InfoCommandProcessor<TReplyMarkup> : CommandProcessor<InfoCommand> 
     private readonly SendOptionsBuilder<TReplyMarkup>? _options;
 
     public InfoCommandProcessor(ILogger<InfoCommandProcessor<TReplyMarkup>> logger,
-                                ICommandValidator<InfoCommand> commandValidator,
-                                ILayoutSupplier<TReplyMarkup> layoutSupplier,
-                                ILayoutParser layoutParser,
-                                IValidator<Message> messageValidator)
-            : base(logger,
-                   commandValidator,
-                   messageValidator)
+        ICommandValidator<InfoCommand> commandValidator,
+        ILayoutSupplier<TReplyMarkup> layoutSupplier,
+        ILayoutParser layoutParser,
+        IValidator<Message> messageValidator)
+        : base(logger,
+            commandValidator,
+            messageValidator)
     {
         var location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
         var responseLayout = layoutParser.ParseFromFile(Path.Combine(location, "start_layout.json"));
@@ -31,15 +32,15 @@ public class InfoCommandProcessor<TReplyMarkup> : CommandProcessor<InfoCommand> 
     }
 
     public InfoCommandProcessor(ILogger<InfoCommandProcessor<TReplyMarkup>> logger,
-                                ICommandValidator<InfoCommand> commandValidator,
-                                ILayoutSupplier<TReplyMarkup> layoutSupplier,
-                                ILayoutParser layoutParser,
-                                IValidator<Message> messageValidator,
-                                MetricsProcessor? metricsProcessor)
-            : base(logger,
-                   commandValidator,
-                   messageValidator,
-                   metricsProcessor)
+        ICommandValidator<InfoCommand> commandValidator,
+        ILayoutSupplier<TReplyMarkup> layoutSupplier,
+        ILayoutParser layoutParser,
+        IValidator<Message> messageValidator,
+        MetricsProcessor? metricsProcessor)
+        : base(logger,
+            commandValidator,
+            messageValidator,
+            metricsProcessor)
     {
         var location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
         var responseLayout = layoutParser.ParseFromFile(Path.Combine(location, "start_layout.json"));
@@ -65,16 +66,35 @@ public class InfoCommandProcessor<TReplyMarkup> : CommandProcessor<InfoCommand> 
 
     protected override async Task InnerProcess(Message message, CancellationToken token)
     {
-        var greetingMessageRequest = new SendMessageRequest
+        var logo = await File.ReadAllBytesAsync("logo_m.png", token);
+        var imageRequest = new SendMessageRequest
+        {
+            Message = new Message
+            {
+                Uid = Guid.NewGuid().ToString(),
+                ChatIds = message.ChatIds
+            }
+        };
+
+        imageRequest.Message.Attachments.Add(new BinaryBaseAttachment(Guid.NewGuid().ToString(), "image/png",
+            MediaType.Image, string.Empty,
+            logo));
+
+        await SendMessage(imageRequest, _options, token);
+
+        var messageRequest = new SendMessageRequest
         {
             Message = new Message
             {
                 Uid = Guid.NewGuid().ToString(),
                 ChatIds = message.ChatIds,
-                Body = "This is a test bot.\nEnjoy!"
+                Body = "Access a vast collection of knowledge with ease!" +
+                       "\nThis Telegram bot enables you to search for books, textbooks, and educational " +
+                       "resources from WikiBooks. Just type your query, and the bot will provide relevant " +
+                       "titles, summaries, and direct links to the content. Ideal for students, educators, " +
+                       "and lifelong learners seeking free, open-source materials. Start exploring today!"
             }
         };
-
-        await SendMessage(greetingMessageRequest, _options, token);
+        await SendMessage(messageRequest, _options, token);
     }
 }

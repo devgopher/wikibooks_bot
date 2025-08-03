@@ -36,17 +36,16 @@
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToPublishDirectory>Never</CopyToPublishDirectory>
         </None>
+        <None Update="logo.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="logo_m.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Data\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Include="..\logo.png">
-        <Link>logo.png</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
     </ItemGroup>
 
 </Project>

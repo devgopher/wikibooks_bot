@@ -43,7 +43,7 @@ public class GetBookCommandProcessor : CommandChainProcessor<FindBookCommand>
 
         foreach (var article in wikiResponse.AsEnumerable().OrderBy(o => Random.Shared.Next()).Take(3))
         {
-            var link = $"https://en.wikibooks.org/w/index.php?curid={article.Id}";
+            var link = $"https://m.wikibooks.org/w/index.php?curid={article.Id}";
             
             var sb = new StringBuilder();
             sb.Append($"\u2714\u2714 {article.Title} \u2714\u2714\n");
