@@ -36,7 +36,7 @@ public class GetBookCommandProcessor : CommandChainProcessor<FindBookCommand>
 
         if (!wikiResponse.Any())
         {
-            message.Body = "🚫 No books were found!";
+            message.Body = $"🚫 No books were found for '{query}'!";
 
             await SendMessage(message, token);
         }
