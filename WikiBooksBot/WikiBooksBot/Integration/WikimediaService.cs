@@ -1,3 +1,5 @@
+using System.Net;
+using Flurl.Http;
 using WikiBooksBot.Integration.Wikimedia;
 
 namespace WikiBooksBot.Integration;
@@ -27,12 +29,13 @@ public class WikimediaService : IWikimediaService
     /// <returns>Список заголовков страниц.</returns>
     public async Task<List<WikimediaPage>> SearchTitlesAsync(string query, int limit)
     {
-        var url = $"https://api.wikimedia.org/core/v1/wikibooks/en/search/title?q={query}&limit={limit}";
-        var response = await _httpClient.GetAsync(url);
+        var response = await $"https://api.wikimedia.org/core/v1/wikibooks/en/search/title?q={query}&limit={limit}"
+            .WithHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
+            .GetAsync();
 
-        if (!response.IsSuccessStatusCode)
+        if (response.StatusCode != (int)HttpStatusCode.OK)
             throw new Exception("Error getting data from Wikimedia API!");
-        var result = await response.Content.ReadFromJsonAsync<WikimediaResponse>();
+        var result =  await response.GetJsonAsync<WikimediaResponse>();
         return result?.Pages.Where(p => p is { Description: not null, Title: not null }).ToList() ??
                new List<WikimediaPage>();
     }
